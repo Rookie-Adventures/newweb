@@ -1,0 +1,25 @@
+/* 手机号输入控件样式 */
+.PhoneInput {
+  @apply flex items-center;
+}
+
+.PhoneInputCountry {
+  @apply mr-2;
+}
+
+.PhoneInputCountryIcon {
+  @apply w-5 h-4 overflow-hidden flex items-center justify-center;
+}
+
+.PhoneInputCountryIcon img {
+  @apply object-cover;
+}
+
+.PhoneInputCountrySelectArrow {
+  @apply border-t-4 border-r-2 border-l-2 border-transparent border-solid ml-1;
+  border-top-color: currentColor;
+}
+
+.PhoneInputInput {
+  @apply appearance-none block w-full px-3 py-2 bg-transparent focus:outline-none text-gray-900 dark:text-white;
+}

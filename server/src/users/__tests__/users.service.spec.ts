@@ -21,12 +21,17 @@ describe('UsersService', () => {
   describe('create', () => {
     it('should throw if email exists', async () => {
       mockUserModel.findOne.mockResolvedValueOnce({});
-      await expect(service.create({ email: 'a', password: 'b', username: 'u' } as any)).rejects.toThrow(ConflictException);
+      await expect(
+        service.create({ email: 'a', password: 'b', username: 'u' } as any),
+      ).rejects.toThrow(ConflictException);
     });
     it('should create new user', async () => {
       mockUserModel.findOne.mockResolvedValueOnce(null);
       const save = jest.fn().mockResolvedValue('saved');
-      mockUserModel.constructor = function (doc: any) { Object.assign(this, doc); this.save = save; };
+      mockUserModel.constructor = function (doc: any) {
+        Object.assign(this, doc);
+        this.save = save;
+      };
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed' as unknown as never);
       const result = await service.create({ email: 'a', password: 'b', username: 'u' } as any);
       expect(result).toBe('saved');
@@ -47,7 +52,9 @@ describe('UsersService', () => {
       await expect(service.findOne('id')).rejects.toThrow(NotFoundException);
     });
     it('should return user if found', async () => {
-      mockUserModel.findOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ userId: 'id' }) });
+      mockUserModel.findOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ userId: 'id' }),
+      });
       const result = await service.findOne('id');
       expect(result.userId).toBe('id');
     });
@@ -64,7 +71,9 @@ describe('UsersService', () => {
   describe('update', () => {
     it('should hash password if present', async () => {
       jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashed' as unknown as never);
-      mockUserModel.findOneAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue({ userId: 'id' }) });
+      mockUserModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ userId: 'id' }),
+      });
       const result = await service.update('id', { password: 'p' } as any);
       expect(result.userId).toBe('id');
     });
@@ -76,11 +85,15 @@ describe('UsersService', () => {
 
   describe('remove', () => {
     it('should throw if not found', async () => {
-      mockUserModel.deleteOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 0 }) });
+      mockUserModel.deleteOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+      });
       await expect(service.remove('id')).rejects.toThrow(NotFoundException);
     });
     it('should resolve if deleted', async () => {
-      mockUserModel.deleteOne.mockReturnValue({ exec: jest.fn().mockResolvedValue({ deletedCount: 1 }) });
+      mockUserModel.deleteOne.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ deletedCount: 1 }),
+      });
       await expect(service.remove('id')).resolves.toBeUndefined();
     });
   });
@@ -98,7 +111,10 @@ describe('UsersService', () => {
       expect(result).toBeNull();
     });
     it('should return user data if valid', async () => {
-      service.findByEmail = jest.fn().mockResolvedValue({ password: 'hashed', toObject: () => ({ userId: 'id', password: 'hashed' }) });
+      service.findByEmail = jest.fn().mockResolvedValue({
+        password: 'hashed',
+        toObject: () => ({ userId: 'id', password: 'hashed' }),
+      });
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as unknown as never);
       const result = await service.validateUser('a', 'b');
       expect(result).toHaveProperty('userId', 'id');
@@ -108,7 +124,9 @@ describe('UsersService', () => {
 
   describe('updateMembership', () => {
     it('should update membership and return user', async () => {
-      mockUserModel.findOneAndUpdate.mockReturnValue({ exec: jest.fn().mockResolvedValue({ userId: 'id' }) });
+      mockUserModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ userId: 'id' }),
+      });
       const result = await service.updateMembership('id', 'VIP', new Date());
       expect(result.userId).toBe('id');
     });

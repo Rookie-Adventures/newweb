@@ -1,0 +1,16 @@
+# 忽略构建输出目录
+.next/
+out/
+dist/
+build/
+
+# 忽略依赖目录
+node_modules/
+
+# 忽略测试覆盖率报告
+coverage/
+
+# 其他
+.git/
+*.min.js
+*.bundle.js 

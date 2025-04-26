@@ -16,7 +16,7 @@ export class SendSmsCodeDto {
   @IsString({ message: '手机号码必须是字符串' })
   @IsNotEmpty({ message: '手机号码不能为空' })
   @Matches(/^1[3-9]\d{9}$/, { message: '请提供有效的手机号码' })
-  phone: string;
+  phone: string = '';
 
   @ApiProperty({
     description: '验证目的',
@@ -25,5 +25,5 @@ export class SendSmsCodeDto {
   })
   @IsEnum(SmsPurpose, { message: '验证目的必须是有效的枚举值' })
   @IsNotEmpty({ message: '验证目的不能为空' })
-  purpose: SmsPurpose;
+  purpose: SmsPurpose = SmsPurpose.REGISTER;
 }

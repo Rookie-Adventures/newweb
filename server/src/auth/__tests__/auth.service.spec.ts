@@ -55,10 +55,14 @@ describe('AuthService', () => {
   describe('loginWithPassword', () => {
     it('should throw if user invalid', async () => {
       service.validateUser = jest.fn().mockResolvedValue(null);
-      await expect(service.loginWithPassword({ email: 'a', password: 'b' } as any)).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginWithPassword({ email: 'a', password: 'b' } as any)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
     it('should return login result if valid', async () => {
-      service.validateUser = jest.fn().mockResolvedValue({ userId: 'id', email: 'a', role: 'user' });
+      service.validateUser = jest
+        .fn()
+        .mockResolvedValue({ userId: 'id', email: 'a', role: 'user' });
       service.login = jest.fn().mockReturnValue({ token: 'jwt-token', user: { userId: 'id' } });
       const result = await service.loginWithPassword({ email: 'a', password: 'b' } as any);
       expect(result).toHaveProperty('token', 'jwt-token');
@@ -68,11 +72,15 @@ describe('AuthService', () => {
   describe('register', () => {
     it('should throw if email exists', async () => {
       mockUsersService.findByEmail.mockResolvedValue({});
-      await expect(service.register({ email: 'a', password: 'b', username: 'u' } as any)).rejects.toThrow(ConflictException);
+      await expect(
+        service.register({ email: 'a', password: 'b', username: 'u' } as any),
+      ).rejects.toThrow(ConflictException);
     });
     it('should create and return user data', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
-      mockUsersService.create.mockResolvedValue({ toObject: () => ({ userId: 'id', password: 'hashed' }) });
+      mockUsersService.create.mockResolvedValue({
+        toObject: () => ({ userId: 'id', password: 'hashed' }),
+      });
       const result = await service.register({ email: 'a', password: 'b', username: 'u' } as any);
       expect(result).toHaveProperty('userId', 'id');
       expect(result).not.toHaveProperty('password');
@@ -82,18 +90,29 @@ describe('AuthService', () => {
   describe('registerWithCode', () => {
     it('should throw if code invalid', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: false, message: 'fail' });
-      await expect(service.registerWithCode({ email: 'a', username: 'u', password: 'b', code: '123' } as any)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.registerWithCode({ email: 'a', username: 'u', password: 'b', code: '123' } as any),
+      ).rejects.toThrow(BadRequestException);
     });
     it('should throw if email exists', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: true });
       mockUsersService.findByEmail.mockResolvedValue({});
-      await expect(service.registerWithCode({ email: 'a', username: 'u', password: 'b', code: '123' } as any)).rejects.toThrow(ConflictException);
+      await expect(
+        service.registerWithCode({ email: 'a', username: 'u', password: 'b', code: '123' } as any),
+      ).rejects.toThrow(ConflictException);
     });
     it('should create and return user data', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: true });
       mockUsersService.findByEmail.mockResolvedValue(null);
-      mockUsersService.create.mockResolvedValue({ toObject: () => ({ userId: 'id', password: 'hashed' }) });
-      const result = await service.registerWithCode({ email: 'a', username: 'u', password: 'b', code: '123' } as any);
+      mockUsersService.create.mockResolvedValue({
+        toObject: () => ({ userId: 'id', password: 'hashed' }),
+      });
+      const result = await service.registerWithCode({
+        email: 'a',
+        username: 'u',
+        password: 'b',
+        code: '123',
+      } as any);
       expect(result).toHaveProperty('userId', 'id');
       expect(result).not.toHaveProperty('password');
     });
@@ -102,12 +121,16 @@ describe('AuthService', () => {
   describe('resetPassword', () => {
     it('should throw if code invalid', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: false, message: 'fail' });
-      await expect(service.resetPassword({ email: 'a', password: 'b', code: '123' } as any)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.resetPassword({ email: 'a', password: 'b', code: '123' } as any),
+      ).rejects.toThrow(BadRequestException);
     });
     it('should throw if user not found', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: true });
       mockUsersService.findByEmail.mockResolvedValue(null);
-      await expect(service.resetPassword({ email: 'a', password: 'b', code: '123' } as any)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.resetPassword({ email: 'a', password: 'b', code: '123' } as any),
+      ).rejects.toThrow(BadRequestException);
     });
     it('should reset password and return message', async () => {
       mockVerificationService.verifyCode.mockResolvedValue({ valid: true });

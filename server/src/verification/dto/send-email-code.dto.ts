@@ -15,7 +15,7 @@ export class SendEmailCodeDto {
   })
   @IsEmail({}, { message: '请提供有效的邮箱地址' })
   @IsNotEmpty({ message: '邮箱地址不能为空' })
-  email: string;
+  email: string = '';
 
   @ApiProperty({
     description: '验证目的',
@@ -24,5 +24,5 @@ export class SendEmailCodeDto {
   })
   @IsEnum(EmailPurpose, { message: '验证目的必须是有效的枚举值' })
   @IsNotEmpty({ message: '验证目的不能为空' })
-  purpose: EmailPurpose;
+  purpose: EmailPurpose = EmailPurpose.REGISTER;
 }

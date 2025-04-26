@@ -1,6 +1,8 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import '../styles/phone-input.css';
+@import 'react-phone-number-input/style.css';
 
 :root {
   --background: #ffffff;
@@ -9,6 +11,9 @@
   --primary-dark: #daa520;
   --secondary: #111827;
   --accent: #4f46e5;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
 /* 主题变量 */
@@ -31,6 +36,9 @@
     --primary-dark: #daa520;
     --secondary: #1f2937;
     --accent: #6366f1;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
 }
 
@@ -38,6 +46,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
+    rgb(var(--background-start-rgb));
 }
 
 .text-gradient {
@@ -65,4 +76,30 @@ body {
 
 .btn-secondary:hover {
   background-color: #2d3748;
+}
+
+/* 手机号输入控件样式 */
+.PhoneInput {
+  @apply flex items-center;
+}
+
+.PhoneInputCountry {
+  @apply mr-2;
+}
+
+.PhoneInputCountryIcon {
+  @apply w-5 h-4 overflow-hidden flex items-center justify-center;
+}
+
+.PhoneInputCountryIcon img {
+  @apply object-cover;
+}
+
+.PhoneInputCountrySelectArrow {
+  @apply border-t-4 border-r-2 border-l-2 border-transparent border-solid ml-1;
+  border-top-color: currentColor;
+}
+
+.PhoneInputInput {
+  @apply appearance-none block w-full px-3 py-2 bg-transparent focus:outline-none text-gray-900 dark:text-white;
 }

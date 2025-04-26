@@ -21,7 +21,7 @@ export class VerifyCodeDto {
   })
   @IsString({ message: '验证目标必须是字符串' })
   @IsNotEmpty({ message: '验证目标不能为空' })
-  target: string;
+  target: string = '';
 
   @ApiProperty({
     description: '验证码',
@@ -29,7 +29,7 @@ export class VerifyCodeDto {
   })
   @IsString({ message: '验证码必须是字符串' })
   @IsNotEmpty({ message: '验证码不能为空' })
-  code: string;
+  code: string = '';
 
   @ApiProperty({
     description: '验证类型',
@@ -38,7 +38,7 @@ export class VerifyCodeDto {
   })
   @IsEnum(VerificationType, { message: '验证类型必须是有效的枚举值' })
   @IsNotEmpty({ message: '验证类型不能为空' })
-  type: VerificationType;
+  type: VerificationType = VerificationType.EMAIL;
 
   @ApiProperty({
     description: '验证目的',
@@ -47,5 +47,5 @@ export class VerifyCodeDto {
   })
   @IsEnum(VerificationPurpose, { message: '验证目的必须是有效的枚举值' })
   @IsNotEmpty({ message: '验证目的不能为空' })
-  purpose: VerificationPurpose;
+  purpose: VerificationPurpose = VerificationPurpose.REGISTER;
 }

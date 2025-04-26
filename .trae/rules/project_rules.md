@@ -1,9 +1,9 @@
- 本次开发聚焦于 主站。
+本次开发聚焦于 主站。
 
 工具偏好与技术栈：
 
     前端 (主站 & 子模块): 使用 Next.js 15 + React 19 + TailwindCSS + TypeScript。
-    主站后端: 使用 NestJS + MongoDB 构建，负责处理主站核心业务逻辑（如会员、权限、订单、支付等），并提供 RESTful API 接口供前端调用。
+    主站后端: 使用 NestJS + MongoDB 构建，负责处理主站核心业务逻辑（如会员、权限、订单、支付等），并提供  由 Prisma 管理的主站数据库。RESTful API 接口供前端调用。
     数据库: 由 Prisma 管理的主站数据库。
     认证: 通过 主站后端 校验共享 JWT (其中包含 userId) 实现 SSO。
     协作模式: 鼓励多模态协作（MCP 流程），提升效率与整合力。

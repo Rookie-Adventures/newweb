@@ -4,7 +4,9 @@ module.exports = {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/styles/**/*.{css,postcss}',
   ],
+  darkMode: 'media',
   theme: {
     extend: {
       colors: {
@@ -12,12 +14,10 @@ module.exports = {
         'primary-dark': 'var(--primary-dark)',
         secondary: 'var(--secondary)',
         accent: 'var(--accent)',
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)'],
-        mono: ['var(--font-mono)'],
+        sans: ['var(--font-geist-sans)'],
+        mono: ['var(--font-geist-mono)'],
       },
     },
   },

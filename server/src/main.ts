@@ -4,6 +4,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import 'dotenv/config';
 import helmet from 'helmet';
 
 async function bootstrap() {
@@ -39,7 +40,7 @@ async function bootstrap() {
 }
 
 // 确保 Promise 被正确处理
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
   console.error('启动应用时发生错误:', err);
   process.exit(1);
 });

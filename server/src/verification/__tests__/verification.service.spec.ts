@@ -196,10 +196,12 @@ describe('VerificationService', () => {
   describe('createVerificationCode', () => {
     it('should save and return a verification code doc', async () => {
       const save = jest.fn().mockResolvedValue(true);
-      const modelMock = jest.spyOn(service as any, 'verificationCodeModel', 'get').mockReturnValue(function (this: any, doc: any) {
-        Object.assign(this, doc);
-        this.save = save;
-      });
+      const modelMock = jest
+        .spyOn(service as any, 'verificationCodeModel', 'get')
+        .mockReturnValue(function (this: any, doc: any) {
+          Object.assign(this, doc);
+          this.save = save;
+        });
       const result = await (service as any).createVerificationCode('target', 'email', 'register');
       expect(result).toHaveProperty('codeId');
       expect(result).toHaveProperty('code');
@@ -218,7 +220,9 @@ describe('VerificationService', () => {
     });
 
     it('should return null and log error on exception', async () => {
-      const findOne = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ exec: jest.fn().mockRejectedValue(new Error('fail')) }) });
+      const findOne = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({ exec: jest.fn().mockRejectedValue(new Error('fail')) }),
+      });
       jest.spyOn(service as any, 'verificationCodeModel', 'get').mockReturnValue({ findOne });
       const loggerSpy = jest.spyOn((service as any).logger, 'error').mockImplementation();
       const result = await service.findLatestValidCode('target', 'email', 'register');
@@ -246,8 +250,12 @@ describe('VerificationService', () => {
     });
 
     it('should throw error when send email failed', async () => {
-      jest.spyOn(service as any, 'findLatestValidCode').mockRejectedValueOnce(new Error('Send email failed'));
-      await expect(service.sendEmailCode({ email: 'test@example.com', purpose: EmailPurpose.REGISTER } as any)).rejects.toThrow('发送验证码失败，请稍后再试');
+      jest
+        .spyOn(service as any, 'findLatestValidCode')
+        .mockRejectedValueOnce(new Error('Send email failed'));
+      await expect(
+        service.sendEmailCode({ email: 'test@example.com', purpose: EmailPurpose.REGISTER } as any),
+      ).rejects.toThrow('发送验证码失败，请稍后再试');
     });
   });
 
@@ -374,7 +382,9 @@ describe('VerificationService', () => {
         purpose: SmsPurpose.REGISTER,
       };
 
-      jest.spyOn(service as any, 'createVerificationCode').mockRejectedValueOnce(new Error('Send sms failed'));
+      jest
+        .spyOn(service as any, 'createVerificationCode')
+        .mockRejectedValueOnce(new Error('Send sms failed'));
       await expect(service.sendSmsCode(dto)).rejects.toThrow('发送验证码失败，请稍后再试');
     });
   });

@@ -103,6 +103,11 @@ describe('UsersController', () => {
 
   it('should throw error when updateMembership fails', async () => {
     mockUsersService.updateMembership.mockRejectedValueOnce(new Error('DB error'));
-    await expect(controller.updateMembership('userId', { membershipLevel: 'VIP', expiryDate: new Date() } as any)).rejects.toThrow('DB error');
+    await expect(
+      controller.updateMembership('userId', {
+        membershipLevel: 'VIP',
+        expiryDate: new Date(),
+      } as any),
+    ).rejects.toThrow('DB error');
   });
 });

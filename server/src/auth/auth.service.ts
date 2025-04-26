@@ -45,7 +45,19 @@ export class AuthService {
     if (user && (await bcrypt.compare(password, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _pwd, ...userData } = user.toObject() as Record<string, unknown>;
-      return userData as UserResponse;
+
+      return {
+        userId: userData.userId as string,
+        email: userData.email as string,
+        username: userData.username as string,
+        role: userData.role as string,
+        membershipLevel: userData.membershipLevel as string,
+        isActive: userData.isActive as boolean,
+        name: userData.name as string | undefined,
+        profile: userData.profile as Record<string, any> | undefined,
+        permissions: userData.permissions as string[] | undefined,
+        membershipExpiry: userData.membershipExpiry as Date | undefined,
+      };
     }
     return null;
   }
@@ -82,7 +94,19 @@ export class AuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _pwd, ...userData } = newUser.toObject() as Record<string, unknown>;
-    return userData as UserResponse;
+
+    return {
+      userId: userData.userId as string,
+      email: userData.email as string,
+      username: userData.username as string,
+      role: userData.role as string,
+      membershipLevel: userData.membershipLevel as string,
+      isActive: userData.isActive as boolean,
+      name: userData.name as string | undefined,
+      profile: userData.profile as Record<string, any> | undefined,
+      permissions: userData.permissions as string[] | undefined,
+      membershipExpiry: userData.membershipExpiry as Date | undefined,
+    };
   }
 
   /**
@@ -117,7 +141,19 @@ export class AuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _pwd, ...userData } = newUser.toObject() as Record<string, unknown>;
-    return userData as UserResponse;
+
+    return {
+      userId: userData.userId as string,
+      email: userData.email as string,
+      username: userData.username as string,
+      role: userData.role as string,
+      membershipLevel: userData.membershipLevel as string,
+      isActive: userData.isActive as boolean,
+      name: userData.name as string | undefined,
+      profile: userData.profile as Record<string, any> | undefined,
+      permissions: userData.permissions as string[] | undefined,
+      membershipExpiry: userData.membershipExpiry as Date | undefined,
+    };
   }
 
   /**
