@@ -1,34 +1,33 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: 'tsconfig.json',
-    tsconfigRootDir: __dirname,
-    sourceType: 'module',
-  },
-  plugins: ['@typescript-eslint', 'prettier'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
-  ],
   root: true,
+  extends: ['eslint:recommended', 'next/core-web-vitals', 'prettier'],
   env: {
     browser: true,
-    node: true,
-    jest: true,
     es2021: true,
+    node: true,
   },
-  ignorePatterns: ['.eslintrc.js', 'dist', 'node_modules'],
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
   rules: {
-    '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', {
-      'argsIgnorePattern': '^_',
-      'varsIgnorePattern': '^_'
-    }],
-    'prettier/prettier': 'error',
+    'react/react-in-jsx-scope': 'off',
+    'no-unused-vars': 'warn',
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
+      extends: ['plugin:@typescript-eslint/recommended'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/ban-ts-comment': 'warn',
+      },
+    },
+  ],
 };
