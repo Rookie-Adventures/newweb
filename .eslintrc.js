@@ -6,15 +6,18 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint', 'prettier'],
   extends: [
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
   ],
   root: true,
   env: {
+    browser: true,
     node: true,
     jest: true,
+    es2021: true,
   },
   ignorePatterns: ['.eslintrc.js', 'dist', 'node_modules'],
   rules: {
@@ -22,18 +25,10 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { 
+    '@typescript-eslint/no-unused-vars': ['warn', {
       'argsIgnorePattern': '^_',
-      'varsIgnorePattern': '^_' 
+      'varsIgnorePattern': '^_'
     }],
-    'prettier/prettier': ['error', { 
-      'endOfLine': 'auto',
-      'printWidth': 100,
-      'singleQuote': true,
-      'trailingComma': 'all'
-    }],
-    'no-console': 'warn',
-    'no-return-await': 'error',
-    'eol-last': ['error', 'always'],
+    'prettier/prettier': 'error',
   },
 };

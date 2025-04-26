@@ -222,15 +222,13 @@ export class VerificationService {
    */
   async sendSmsCode(sendSmsCodeDto: SendSmsCodeDto): Promise<{ message: string }> {
     const { phone, purpose } = sendSmsCodeDto;
-
-    const verificationCode = await this.createVerificationCode(phone, 'sms', purpose);
-
     try {
+      const verificationCode = await this.createVerificationCode(phone, 'sms', purpose);
       this.logger.log(`模拟发送短信验证码 ${verificationCode.code} 到 ${phone}`);
       return { message: '验证码已发送到您的手机' };
     } catch (error) {
       this.logger.error(`发送短信验证码失败: ${(error as Error).message}`, (error as Error).stack);
-      throw new BadRequestException('发送验证码失败，请稍后再试');
+      throw new Error('发送验证码失败，请稍后再试');
     }
   }
 
@@ -258,7 +256,9 @@ export class VerificationService {
     if (verificationCode.code !== code) {
       return { valid: false, message: '验证码错误' };
     }
-
+    if (verificationCode.purpose !== purpose) {
+      return { valid: false, message: '验证码用途不匹配' };
+    }
     verificationCode.isUsed = true;
     verificationCode.usedAt = new Date();
     await verificationCode.save();

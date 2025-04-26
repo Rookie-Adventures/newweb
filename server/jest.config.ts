@@ -1,7 +1,11 @@
 export default {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',
-  testRegex: '.*\\.spec\\.ts$',
+  testMatch: [
+    "**/__tests__/**/*.spec.ts",
+    "**/?(*.)+(spec|test).ts"
+  ],
+  // testRegex: '**/__tests__/.*\\.spec\\.ts$', // 已被 testMatch 替代
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
