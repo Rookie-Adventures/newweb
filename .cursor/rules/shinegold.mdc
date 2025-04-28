@@ -65,7 +65,7 @@ alwaysApply: false
     框架: NestJS (强制)
     ORM: Prisma (强制)
     语言: TypeScript
-    包管理: pnpm / yarn
+    包管理:
     测试: Jest
 
 2. 架构 & 模式
@@ -97,14 +97,14 @@ alwaysApply: false
 
 6. 数据库
 
-    Schema & 迁移: prisma/schema.prisma + prisma migrate
+    prisma/schema.prisma + prisma migrate
     交互: 通过注入的 PrismaService
 
 7. 与其他系统集成
 
-    LibreChat: 独立子系统。本后端负责主站业务 (会员/订单/支付等), 通过共享 JWT (userId) 对接用户。不处理聊天逻辑。
-    类型共享: 如需跨项目共享类型，使用私有 NPM 包。
-
+    LibreChat: 独立子系统。使用中间层和主站集成
+    sever/src/integration(LibreChat中间层)
+    
 8. 代码质量
 
     强制: ESLint + Prettier

@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../../users/users.service';
+import { Request } from 'express';
 
 interface JwtPayload {
   userId: string;
@@ -11,6 +12,26 @@ interface JwtPayload {
   exp?: number;
 }
 
+/**
+ * 从请求中提取JWT的自定义函数
+ * 优先级：AuthHeader > Cookie
+ */
+const extractJWT = (req: Request) => {
+  let token = null;
+  
+  // 1. 尝试从Authorization头提取
+  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  
+  // 2. 如果没有Authorization头，尝试从Cookie提取
+  if (!token && req.cookies && req.cookies.auth_token) {
+    token = req.cookies.auth_token;
+  }
+  
+  return token;
+};
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -18,7 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractJWT, // 使用自定义提取函数
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });

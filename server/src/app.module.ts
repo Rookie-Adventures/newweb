@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { VerificationModule } from './verification/verification.module';
+import { IntegrationModule } from './integration/integration.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { VerificationModule } from './verification/verification.module';
     UsersModule,
     AuthModule,
     VerificationModule,
+    IntegrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
