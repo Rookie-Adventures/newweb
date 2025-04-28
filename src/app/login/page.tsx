@@ -3,21 +3,49 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import SmartIdentifierInput, { IdentifierType } from '@/components/smart-identifier-input';
 
 export default function LoginPage() {
-  const { login, isLoading, error: authError, redirectIfAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [identifier, setIdentifier] = useState('');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('unknown');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [signInAttempts, setSignInAttempts] = useState(0);
+
+  // 获取URL中的错误信息或消息
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const messageParam = searchParams.get('message');
+    
+    if (errorParam) {
+      if (errorParam === 'CredentialsSignin') {
+        setError('登录失败，请检查您的邮箱和密码');
+      } else {
+        setError(`登录错误：${errorParam}`);
+      }
+    }
+    
+    if (messageParam) {
+      setMessage(messageParam);
+    }
+  }, [searchParams]);
 
   // 检查用户是否已登录，如果已登录则重定向
   useEffect(() => {
-    redirectIfAuthenticated();
-  }, [redirectIfAuthenticated]);
+    if (session && status === 'authenticated') {
+      console.log('用户已登录，准备重定向', { session });
+      const returnUrl = searchParams.get('returnUrl') || '/dashboard';
+      router.push(decodeURIComponent(returnUrl));
+    }
+  }, [session, status, router, searchParams]);
 
   const handleIdentifierChange = (value: string, type: IdentifierType) => {
     setIdentifier(value);
@@ -29,6 +57,8 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMessage('');
+    setSignInAttempts(prev => prev + 1);
 
     if (!identifier) {
       setError('请输入手机号或电子邮箱');
@@ -41,13 +71,46 @@ export default function LoginPage() {
     }
 
     try {
-      await login({
-        identifier,
+      setIsLoading(true);
+      console.log(`尝试登录 (尝试 #${signInAttempts + 1})...`, { identifier, identifierType });
+      
+      // 使用identifierType来决定是使用email还是phone作为登录标识
+      // 目前NextAuth配置只接受email，但保留这段代码便于未来扩展
+      const authData: Record<string, string> = {
+        redirect: 'false',
         password,
-        type: identifierType === 'email' ? 'email' : 'phone',
-      });
-    } catch (_) {
-      setError('登录失败，请检查您的登录信息');
+      };
+      
+      // 根据标识符类型传递合适的字段名
+      if (identifierType === 'email') {
+        authData.email = identifier;
+      } else if (identifierType === 'phone') {
+        authData.phone = identifier;
+      } else {
+        // 默认作为email处理
+        authData.email = identifier;
+      }
+      
+      const result = await signIn('credentials', authData);
+      console.log('登录结果:', result);
+
+      if (result?.error) {
+        setError('登录失败，请检查您的登录信息');
+        console.error('登录错误:', result.error);
+        return;
+      }
+
+      // 显示成功消息
+      setMessage('登录成功，正在跳转...');
+      
+      // 登录成功，重定向
+      const returnUrl = searchParams.get('returnUrl') || '/dashboard';
+      router.push(decodeURIComponent(returnUrl));
+    } catch (error) {
+      console.error('登录异常:', error);
+      setError('登录过程中出现问题，请稍后再试');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,9 +140,28 @@ export default function LoginPage() {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white dark:bg-secondary py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            {authError && (
+            {/* 状态信息区域 */}
+            {error && (
               <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-400 p-4 mb-6">
-                <p className="text-sm text-red-700 dark:text-red-200">{authError}</p>
+                <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
+              </div>
+            )}
+
+            {message && (
+              <div className="bg-green-50 dark:bg-green-900/30 border-l-4 border-green-400 p-4 mb-6">
+                <p className="text-sm text-green-700 dark:text-green-200">{message}</p>
+              </div>
+            )}
+
+            {/* 开发环境提示 */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-400 p-4 mb-6">
+                <p className="text-sm text-blue-700 dark:text-blue-200">
+                  开发环境提示:
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                  使用API服务器数据库中的账户进行登录，如需建立测试账户请联系管理员。
+                </p>
               </div>
             )}
 
@@ -177,6 +259,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  onClick={() => setMessage('第三方登录功能开发中...')}
                 >
                   <svg
                     className="w-5 h-5"
@@ -202,9 +285,11 @@ export default function LoginPage() {
                     />
                   </svg>
                 </button>
+
                 <button
                   type="button"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  onClick={() => setMessage('第三方登录功能开发中...')}
                 >
                   <svg
                     className="w-5 h-5"
@@ -219,9 +304,11 @@ export default function LoginPage() {
                     />
                   </svg>
                 </button>
+
                 <button
                   type="button"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  onClick={() => setMessage('第三方登录功能开发中...')}
                 >
                   <svg
                     className="w-5 h-5"
@@ -229,7 +316,7 @@ export default function LoginPage() {
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.14 19.018c-3.868 0-7-3.14-7-7.018 0-3.878 3.132-7.018 7-7.018 1.89 0 3.47.697 4.682 1.829l-1.974 1.978c-.532-.511-1.467-1.102-2.708-1.102-2.31 0-4.187 1.9-4.187 4.313 0 2.413 1.877 4.313 4.187 4.313 2.688 0 3.7-1.943 3.86-2.94H12.14v-2.591h6.667c.069.34.107.694.107 1.101 0 4.03-2.7 6.935-6.774 6.935z" />
+                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                   </svg>
                 </button>
               </div>

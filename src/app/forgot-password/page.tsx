@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import SmartIdentifierInput, { IdentifierType } from '@/components/smart-identifier-input';
 import VerificationCodeInput from '@/components/verification-code-input';
 
 export default function ForgotPasswordPage() {
-  const { resetPassword, isLoading, error: authError, redirectIfAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('unknown');
   const [verificationCode, setVerificationCode] = useState('');
@@ -17,11 +19,14 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1); // 1: 填写账号 2: 设置新密码
   const [verificationError, setVerificationError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 检查用户是否已登录，如果已登录则重定向
   useEffect(() => {
-    redirectIfAuthenticated();
-  }, [redirectIfAuthenticated]);
+    if (session && status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [session, status, router]);
 
   const handleIdentifierChange = (value: string, type: IdentifierType) => {
     setIdentifier(value);
@@ -33,15 +38,28 @@ export default function ForgotPasswordPage() {
   // 发送验证码的处理函数
   const handleSendCode = async (id: string, type: 'email' | 'phone'): Promise<boolean> => {
     try {
-      // 这里需要调用后端API发送验证码
-      console.log(`向${type === 'email' ? '邮箱' : '手机号'} ${id} 发送验证码`);
+      // 调用后端API发送验证码
+      const response = await fetch('/api/auth/send-verification-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: id,
+          type: type,
+          purpose: 'reset-password'
+        }),
+      });
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setVerificationError(data.message || '验证码发送失败，请稍后再试');
+        return false;
+      }
 
-      // 成功返回true
       return true;
-    } catch (error) {
+    } catch (_error) {
       setVerificationError('验证码发送失败，请稍后再试');
       return false;
     }
@@ -81,14 +99,34 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      await resetPassword({
-        email: identifierType === 'email' ? identifier : undefined,
-        phone: identifierType === 'phone' ? identifier : undefined,
-        password,
-        verificationCode,
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: identifierType === 'email' ? identifier : undefined,
+          phone: identifierType === 'phone' ? identifier : undefined,
+          password,
+          verificationCode,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || '重置密码失败，请稍后再试');
+        return;
+      }
+
+      // 重置成功，跳转到登录页
+      router.push('/login?message=密码重置成功，请使用新密码登录');
     } catch (_) {
       setError('重置密码失败，请稍后再试');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,9 +156,9 @@ export default function ForgotPasswordPage() {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white dark:bg-secondary py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            {authError && (
+            {error && error.includes('验证') && (
               <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-400 p-4 mb-6">
-                <p className="text-sm text-red-700 dark:text-red-200">{authError}</p>
+                <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
               </div>
             )}
 
@@ -200,31 +238,24 @@ export default function ForgotPasswordPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className={`appearance-none block w-full px-3 py-2 border ${
-                        error && error.includes('两次输入的密码')
+                        error && error.includes('两次')
                           ? 'border-red-500'
                           : 'border-gray-300 dark:border-gray-700'
                       } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary text-gray-900 dark:text-white dark:bg-gray-800`}
                     />
-                    {error && error.includes('两次输入的密码') && (
+                    {error && error.includes('两次') && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="text-sm font-medium text-primary hover:text-primary-dark"
-                  >
-                    返回上一步
-                  </button>
+                <div>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? '重置中...' : '重置密码'}
+                    {isLoading ? '提交中...' : '重置密码'}
                   </button>
                 </div>
               </form>

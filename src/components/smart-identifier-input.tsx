@@ -24,7 +24,8 @@ export default function SmartIdentifierInput({
   label,
   error,
 }: SmartIdentifierInputProps) {
-  const [inputType, setInputType] = useState<IdentifierType>('unknown');
+  // 重命名为_inputType，表示我们知道这个状态但不在JSX中直接使用它
+  const [_inputType, setInputType] = useState<IdentifierType>('unknown');
   const [internalValue, setInternalValue] = useState(value);
 
   // 识别输入类型的函数

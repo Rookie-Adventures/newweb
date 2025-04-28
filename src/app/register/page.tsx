@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import SmartIdentifierInput, { IdentifierType } from '@/components/smart-identifier-input';
 import VerificationCodeInput from '@/components/verification-code-input';
 
 export default function RegisterPage() {
-  const { register, isLoading, error: authError, redirectIfAuthenticated } = useAuth();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [identifier, setIdentifier] = useState('');
   const [identifierType, setIdentifierType] = useState<IdentifierType>('unknown');
   const [verificationCode, setVerificationCode] = useState('');
@@ -20,11 +22,14 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [verificationError, setVerificationError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 检查用户是否已登录，如果已登录则重定向
   useEffect(() => {
-    redirectIfAuthenticated();
-  }, [redirectIfAuthenticated]);
+    if (session && status === 'authenticated') {
+      router.push('/dashboard');
+    }
+  }, [session, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,15 +50,28 @@ export default function RegisterPage() {
   // 发送验证码的处理函数
   const handleSendCode = async (id: string, type: 'email' | 'phone'): Promise<boolean> => {
     try {
-      // 这里需要调用后端API发送验证码
-      console.log(`向${type === 'email' ? '邮箱' : '手机号'} ${id} 发送验证码`);
+      // 调用后端API发送验证码
+      const response = await fetch('/api/auth/send-verification-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: id,
+          type: type,
+          purpose: 'register'
+        }),
+      });
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setVerificationError(data.message || '验证码发送失败，请稍后再试');
+        return false;
+      }
 
-      // 成功返回true
       return true;
-    } catch (error) {
+    } catch (_error) {
       setVerificationError('验证码发送失败，请稍后再试');
       return false;
     }
@@ -101,16 +119,36 @@ export default function RegisterPage() {
     }
 
     try {
-      await register({
-        name: formData.nickname,
-        email: identifierType === 'email' ? identifier : undefined,
-        phone: identifierType === 'phone' ? identifier : undefined,
-        password: formData.password,
-        type: identifierType === 'email' ? 'email' : 'phone',
-        verificationCode: verificationCode,
+      setIsLoading(true);
+      
+      // 调用注册API
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.nickname,
+          email: identifierType === 'email' ? identifier : undefined,
+          phone: identifierType === 'phone' ? identifier : undefined,
+          password: formData.password,
+          verificationCode: verificationCode,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || '注册失败，请稍后再试');
+        return;
+      }
+
+      // 注册成功，跳转到登录页
+      router.push('/login?message=注册成功，请登录您的账户');
     } catch (_) {
       setError('注册失败，请稍后再试');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -140,9 +178,9 @@ export default function RegisterPage() {
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white dark:bg-secondary py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            {authError && (
+            {error && error.includes('失败') && (
               <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-400 p-4 mb-6">
-                <p className="text-sm text-red-700 dark:text-red-200">{authError}</p>
+                <p className="text-sm text-red-700 dark:text-red-200">{error}</p>
               </div>
             )}
 

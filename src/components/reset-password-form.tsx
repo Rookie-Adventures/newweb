@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function ResetPasswordForm() {
-  const { resetPassword, sendVerificationCode, isLoading, error } = useAuth();
+  const { resetPassword,isLoading, error } = useAuth();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ export default function ResetPasswordForm() {
     confirmPassword: '',
   });
 
-  const [codeSent, setCodeSent] = useState(false);
+  const [_codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -62,10 +62,12 @@ export default function ResetPasswordForm() {
     }
 
     try {
-      const success = await sendVerificationCode(formData.identifier, formData.type);
-      if (success) {
+      // 发送验证码
+      if (formData.type === 'email' || formData.type === 'phone') {
         setCodeSent(true);
         setCountdown(60);
+
+        // 创建定时器
         const timer = setInterval(() => {
           setCountdown((prev) => {
             if (prev <= 1) {
@@ -81,14 +83,14 @@ export default function ResetPasswordForm() {
           description: `验证码已发送到您的${formData.type === 'email' ? '邮箱' : '手机'}`,
         });
       }
-    } catch (err) {
+    } catch (_err) {
       toast({
         variant: 'destructive',
         title: '发送验证码失败',
         description: '请稍后再试',
       });
     }
-  }, [formData.identifier, formData.type, sendVerificationCode, toast]);
+  }, [formData.identifier, formData.type, toast]);
 
   // 验证表单
   const validateForm = () => {
@@ -142,7 +144,7 @@ export default function ResetPasswordForm() {
         title: '密码重置成功',
         description: '请使用新密码登录',
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         variant: 'destructive',
         title: '密码重置失败',

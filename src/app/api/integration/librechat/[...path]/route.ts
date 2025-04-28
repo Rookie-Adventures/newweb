@@ -72,6 +72,10 @@ async function handleRequest(
   const queryString = new URL(request.url).search;
   const url = `${backendUrl}/integration/librechat/${path}${queryString}`;
   
+  // 调试日志
+  console.log(`[LibreChat代理] 请求: ${method} ${url}`);
+  console.log(`[LibreChat代理] 认证状态: ${token ? '已认证' : '未认证'}`);
+  
   // 3. 构建请求选项
   const options: RequestInit = {
     method,
@@ -84,9 +88,33 @@ async function handleRequest(
   
   // 4. 添加认证头（如果令牌存在）
   if (token) {
+    // 使用正确的token格式
+    let authToken = '';
+    
+    // 优先使用后端返回的认证token
+    if (token.authToken) {
+      authToken = token.authToken;
+      console.log('[LibreChat代理] 使用后端认证token');
+    }
+    // 其次使用自定义生成的token
+    else if (token.token) {
+      // 使用我们自定义生成的token字符串
+      authToken = token.token;
+      console.log('[LibreChat代理] 使用自定义token');
+    } else {
+      // 构建兼容LibreChat的token
+      authToken = JSON.stringify({
+        userId: token.userId || token.id,
+        username: token.username || token.name,
+        email: token.email,
+        role: token.role || 'user',
+      });
+      console.log('[LibreChat代理] 使用构建的token');
+    }
+    
     options.headers = {
       ...options.headers,
-      'Authorization': `Bearer ${token.token}`,
+      'Authorization': `Bearer ${authToken}`,
     };
   }
   
@@ -101,10 +129,12 @@ async function handleRequest(
   
   try {
     // 6. 发送请求到中间层API
+    console.log(`[LibreChat代理] 调用后端API: ${url}`);
     const response = await fetch(url, options);
     
     // 7. 提取响应数据
     const data = await response.text();
+    console.log(`[LibreChat代理] 响应状态: ${response.status}`);
     
     // 8. 构建响应
     const headers = new Headers();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import LibreChatLink from '@/components/librechat-link';
 
 export default function Home() {
   const [typedText, setTypedText] = useState('');
@@ -312,6 +313,125 @@ export default function Home() {
                 />
               </svg>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* AI对话助手区域 */}
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-secondary/10 dark:from-primary/10 dark:to-secondary/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                体验 <span className="text-gradient">ShineGold AI</span> 智能对话
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                我们的AI对话平台集成了多种先进的大语言模型，为您提供智能、自然、高效的对话体验。无论是日常问答、创意写作、代码辅助还是专业研究，都能轻松应对。
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg 
+                    className="w-5 h-5 text-primary mt-1 mr-2" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span>多模型支持，满足不同场景需求</span>
+                </li>
+                <li className="flex items-start">
+                  <svg 
+                    className="w-5 h-5 text-primary mt-1 mr-2" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span>支持上传文档、图片，实现多模态交互</span>
+                </li>
+                <li className="flex items-start">
+                  <svg 
+                    className="w-5 h-5 text-primary mt-1 mr-2" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span>强大的知识库支持，实时获取最新信息</span>
+                </li>
+              </ul>
+              <div>
+                {/* 引入修改后的LibreChatLink组件 */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <LibreChatLink 
+                    variant="button" 
+                    size="lg" 
+                    className="bg-primary text-white hover:bg-primary-dark shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
+                  >
+                    立即体验AI对话
+                  </LibreChatLink>
+                  <Link
+                    href="/products#ai-chat"
+                    className="btn-secondary rounded-full px-6 py-3 font-medium text-lg inline-flex items-center"
+                  >
+                    了解更多功能
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <div className="aspect-[4/3] relative bg-gray-800 flex items-center justify-center">
+                  <div className="p-6 max-w-xl">
+                    <div className="flex items-center mb-6">
+                      <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                        <svg 
+                          className="w-6 h-6 text-primary" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-white">ShineGold AI 助手</h3>
+                        <p className="text-gray-400">实时对话演示</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-700/50 rounded-lg p-4 mb-4">
+                      <p className="text-gray-300">您好！我是ShineGold AI助手，有什么我可以帮您的吗？</p>
+                    </div>
+                    
+                    <div className="bg-primary/10 rounded-lg p-4 mb-4 ml-auto max-w-[80%]">
+                      <p className="text-gray-300">请介绍一下人工智能在金融领域的应用</p>
+                    </div>
+                    
+                    <div className="bg-gray-700/50 rounded-lg p-4">
+                      <p className="text-gray-300">
+                        人工智能在金融领域有广泛应用，主要包括：
+                        <br /><br />
+                        1. <span className="text-primary">风险评估</span>：通过分析客户数据预测违约风险
+                        <br />
+                        2. <span className="text-primary">算法交易</span>：AI驱动的量化交易策略
+                        <br />
+                        3. <span className="text-primary">欺诈检测</span>：实时识别可疑交易模式
+                        <br />
+                        4. <span className="text-primary">智能客服</span>：24/7自动化客户支持
+                        <br /><br />
+                        需要了解更多具体应用吗？
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-accent/30 rounded-full blur-3xl"></div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-primary/30 rounded-full blur-3xl"></div>
+            </div>
           </div>
         </div>
       </section>

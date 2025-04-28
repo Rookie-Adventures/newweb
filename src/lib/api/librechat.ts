@@ -8,6 +8,14 @@ import { getSession } from 'next-auth/react';
 // API基础路径
 const API_BASE_URL = '/api/integration/librechat';
 
+// 消息发送选项类型
+interface MessageOptions {
+  model?: string;
+  temperature?: number;
+  systemPrompt?: string;
+  [key: string]: unknown;
+}
+
 /**
  * LibreChat API客户端
  */
@@ -48,7 +56,7 @@ export const libreChatClient = {
    * @param options 其他选项
    * @returns 发送结果
    */
-  async sendMessage(conversationId: string, message: string, options?: any) {
+  async sendMessage(conversationId: string, message: string, options?: MessageOptions) {
     return await fetchWithAuth(`${API_BASE_URL}/message`, {
       method: 'POST',
       body: JSON.stringify({

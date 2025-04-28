@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@/context/AuthContext';
+import { useSession, signOut } from 'next-auth/react';
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -24,9 +24,17 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
-    setIsUserMenuOpen(false);
+    signOut({ callbackUrl: '/' });
   };
+
+  // 登录状态调试信息
+  useEffect(() => {
+    console.log('NextAuth 会话状态:', status);
+    console.log('会话数据:', session);
+  }, [session, status]);
+
+  // 用户是否已登录
+  const isAuthenticated = status === 'authenticated' && !!session;
 
   return (
     <header className="bg-white dark:bg-secondary shadow-sm sticky top-0 z-50">
@@ -80,13 +88,13 @@ const Header = () => {
 
           {/* 用户登录状态 */}
           <div className="hidden md:flex items-center space-x-4">
-            {isMounted && user ? (
+            {isMounted && isAuthenticated ? (
               <div className="relative">
                 <button
                   onClick={toggleUserMenu}
                   className="flex items-center text-gray-700 dark:text-gray-200 hover:text-primary"
                 >
-                  <span className="mr-2">{user.name || user.email}</span>
+                  <span className="mr-2 font-medium">{session.user.name || session.user.email}</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-5 w-5 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}
@@ -228,11 +236,11 @@ const Header = () => {
           </Link>
 
           {/* 移动端用户菜单 */}
-          {isMounted && user ? (
+          {isMounted && isAuthenticated ? (
             <>
               <div className="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
                 <div className="px-3 py-2 text-base font-medium text-gray-700 dark:text-gray-200">
-                  {user.name || user.email}
+                  {session.user.name || session.user.email}
                 </div>
                 <Link
                   href="/profile"
@@ -264,7 +272,7 @@ const Header = () => {
               </Link>
               <Link
                 href="/register"
-                className="block px-3 py-2 rounded-md text-base font-medium text-primary hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 注册
               </Link>

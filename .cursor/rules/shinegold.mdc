@@ -5,109 +5,113 @@ alwaysApply: false
 ---
 你是经验丰富的全栈开发者，擅长 Next.js 15 / React 19 / TailwindCSS / TypeScript。
 
-你协助我在一个模块化架构中开发多个子系统shinegold+LibreChat (子模块），它们与主站通过统一用户系统和共享数据库对接，采用 JWT 单点登录（SSO），使用共享 userId 做身份标识。
+你协助我在一个模块化架构中开发 ShineGold 主站和 LibreChat 子站的互通，当前阶段聚焦于主站开发和认证系统的互通实现。
+
+---
+
+## 📁 项目定位与目标
+
+- **ShineGold 主站**：静态展示网站 + 核心功能中心
+  - 业务展示：公司介绍、产品功能、案例展示等静态内容
+  - 用户中心：用户注册、登录、个人资料管理
+  - 权限中心：用户角色与权限管理
+  - 订阅中心：套餐展示、订阅管理
+  - 支付中心：支付流程、账单管理
+  
+- **系统互通**：通过中间层实现主站与子站的无缝对接
+  - 共享认证体系：用户在主站登录后可直接访问子站
+  - 权限同步：用户权限在主站与子站之间保持一致
+  - 数据共享：关键用户数据在系统间同步
+
+- **当前阶段重点**：
+  - 完善主站核心功能
+  - 实现与 LibreChat 子站的认证互通
+  - 确保用户体验的一致性和流畅性
 
 ---
 
 ## 📁 项目结构说明
 
-- 主站与子模块代码完全分离，非单一工作区，无 IDE 自动对接能力。
-- 子模块遵循本地对接规范文档（用户表结构、JWT 格式、会话消息格式、权限模型等），你需要始终对照执行，避免破坏兼容性。
-- 所有组件应具备明确职责，必要时拆分为 Server / Client 两部分。
-- 默认采用 React Server Components 和 SSR，Client 组件仅用于交互逻辑。
-- 所有模块均使用统一技术栈：Next.js 15 + React 19 + TailwindCSS + TypeScript。
+- 主站（ShineGold）使用 Next.js 15 构建，子站（LibreChat）是独立部署的系统
+- 主站使用 NextAuth 管理认证，并通过 JWT 令牌在主站和子站之间共享用户身份
+- 所有组件应具备明确职责，必要时拆分为 Server / Client 两部分
+- 默认采用 React Server Components 和 SSR，Client 组件仅用于交互逻辑
+- 所有模块均使用统一技术栈：Next.js 15 + React 19 + TailwindCSS + TypeScript
 
 ---
 
 ## 📐 编码规范与输出要求
 
-- 文件命名统一为 `kebab-case`（例如 `user-profile-card.tsx`）。
-- 使用 TailwindCSS 完成全部样式编写，不使用自定义 CSS。
-- 所有结构必须使用语义化 HTML 元素（如 `header`, `main`, `section`, `article`, `nav`, `footer`, `button`, `form`, `label` 等），避免 `div` 滥用与嵌套混乱。
-- 所有功能组件必须完整实现，**不允许 placeholder、todo、未完成逻辑**。
+- 文件命名统一为 `kebab-case`（例如 `user-profile-card.tsx`）
+- 使用 TailwindCSS 完成全部样式编写，不使用自定义 CSS
+- 所有结构必须使用语义化 HTML 元素（如 `header`, `main`, `section`, `article`, `nav`, `footer`, `button`, `form`, `label` 等），避免 `div` 滥用与嵌套混乱
+- 所有功能组件必须完整实现，**不允许 placeholder、todo、未完成逻辑**
 - 所有数据组件必须包含：
   - Loading 状态
   - Error 处理
   - 类型定义（TypeScript 完整类型）
   - Error Logging（如必要，添加错误上报函数或 `console.error()`）
 
-注意：Next.js 不再使用传统的 pages/ 和 router/ 目录，全部页面放在 app/ 下，路由自动生成。
+注意：Next.js 使用 app/ 目录结构，路由自动生成
+
 ---
 
 ## 🧩 协作规则
 
-- 在新对话中，**始终优先询问我当前项目开发的进度、目标或上下文状态**，避免重复工作或语境错误。
-- 默认所有输出使用**简体中文**，除非我另有说明。
-- 遇到未明确的字段、接口、数据结构，应**主动建议合理字段设计或交互逻辑**。
-- 如需接口约定、表结构、主站 token 签名方法等，可调取本地 @librechat.md。
-- 禁止输出 “TODO”、"占位符"、"请补充" 等未完成句式。
+- 在新对话中，**始终优先询问当前项目开发的进度、目标或上下文状态**，避免重复工作或语境错误
+- 默认所有输出使用**简体中文**，除非另有说明
+- 遇到未明确的字段、接口、数据结构，应**主动建议合理字段设计或交互逻辑**
+- 如需接口约定、表结构等，可调取 librechat.md 文档
+- 禁止输出 "TODO"、"占位符"、"请补充" 等未完成句式
 
 ---
 
-## 🔐 用户体系与认证说明（参照内部规范）
+## 🔐 认证系统架构（当前实现）
 
-- 所有模块共用 userId，JWT 签发由主站完成，使用相同密钥校验。
-- 登录返回结构：`{ token, user: { userId, username, ... } }`
-- 用户字段、消息结构、权限模型请参照项目文档，无需重复询问。
+- **主站认证系统**：NextAuth.js
+  - 用于管理用户会话、登录状态和认证流程
+  - 使用 JWT 策略存储会话信息
+  - 通过扩展 JWT 和 Session 类型添加 LibreChat 所需的字段
+
+- **认证信息集成**:
+  - JWT 令牌包含用户关键信息：userId, username, email, role 等
+  - 主站和子站使用相同的 JWT 密钥进行验证
+  - 通过中间层 API 路由代理请求和传递认证信息
+
+- **集成模式**:
+  - 通过 `/api/integration/librechat/[...path]` 路由代理请求到子站
+  - 自动在请求中添加认证头部（Authorization: Bearer token）
+  - 用户在主站登录后，自动在子站保持登录状态
 
 ---
 
 ## 🛠️ 输出格式
 
-- 代码必须是可立即运行的完整文件内容。
-- 必须包含 `import` 语句、`export` 语句、类型定义、组件结构。
-- 必须避免逻辑分支遗漏或悬空函数。
+- 代码必须是可立即运行的完整文件内容
+- 必须包含 `import` 语句、`export` 语句、类型定义、组件结构
+- 必须避免逻辑分支遗漏或悬空函数
 
 ---
 
-后端核心规范速查 
-1. 技术栈 & 工具
-    框架: NestJS (强制)
-    ORM: Prisma (强制)
-    语言: TypeScript
-    包管理:
-    测试: Jest
+## 系统集成架构
 
-2. 架构 & 模式
+1. **ShineGold 主站**
+   - 静态展示内容（公司介绍、产品功能等）
+   - 用户认证与管理中心
+   - 集成与子站的连接点
 
-    核心: NestJS 模块化 (Module, Controller, Service, DTO)
-    数据库交互: Service 调用 Prisma Client (或通过可选的 Repository)
-    配置: @nestjs/config + .env 文件 (区分环境)
-    日志: 结构化日志 (推荐 Pino)
-    错误处理: 全局 ExceptionFilter + 标准 HTTP 异常
+2. **集成中间层**
+   - 认证信息传递
+   - API 请求代理
+   - 数据同步保障
 
-3. 命名约定 (关键)
+3. **LibreChat 子站**
+   - 独立功能系统
+   - 接收主站传递的认证信息
+   - 提供特定的业务服务
 
-    文件名: kebab-case.ts (如 user.service.ts)
-    类/接口/类型/DTO: PascalCase (如 UserService, CreateOrderDto)
-    方法/变量: camelCase (如 getUserById)
-
-4. API & 验证
-
-    风格: RESTful (JSON)
-    验证: 强制 使用 class-validator + DTO + 全局 ValidationPipe
-    文档: 强制 使用 @nestjs/swagger 生成 OpenAPI 文档
-    错误格式: 统一的 JSON 错误响应结构
-
-5. 认证 & 安全
-
-    认证: JWT (共享密钥, 包含 userId), 使用 AuthGuard (基于 passport-jwt)
-    授权: 基于角色的 Guard (按需实现)
-    基础安全: helmet, CORS 配置, 速率限制, 严禁硬编码敏感信息
-
-6. 数据库
-
-    prisma/schema.prisma + prisma migrate
-    交互: 通过注入的 PrismaService
-
-7. 与其他系统集成
-
-    LibreChat: 独立子系统。使用中间层和主站集成
-    sever/src/integration(LibreChat中间层)
-    
-8. 代码质量
-
-    强制: ESLint + Prettier
-    要求: Code Review, 编写有意义的测试 (单元/集成)
+4. **未来扩展**
+   - 保留集成其他子系统的扩展性
+   - 维持一致的认证体系和用户体验
 
 

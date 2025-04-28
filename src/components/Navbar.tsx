@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
-import LibreChatLink from './librechat-link';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -56,8 +55,6 @@ export default function Navbar() {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-            <LibreChatLink className="px-4 py-2 rounded-md font-medium bg-primary hover:bg-primary-dark text-secondary" />
-
             {isLoading ? (
               <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>
             ) : session ? (
@@ -132,9 +129,6 @@ export default function Navbar() {
             >
               服务
             </Link>
-            <div className="mt-4 pl-3 pr-4">
-              <LibreChatLink className="w-full py-2 block text-center" />
-            </div>
 
             {isLoading ? (
               <div className="mx-3 mt-4 h-10 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse"></div>

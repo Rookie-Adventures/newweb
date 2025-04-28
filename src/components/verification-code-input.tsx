@@ -54,7 +54,7 @@ export default function VerificationCodeInput({
       if (success) {
         setCountdown(60); // 60秒倒计时
       }
-    } catch (error) {
+    } catch (_error) {
       setIsSending(false);
     }
   }, [identifier, identifierType, onSendCode, countdown, isSending]);
