@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PhoneInput from 'react-phone-number-input';
 
 // 定义输入类型
 export type IdentifierType = 'phone' | 'email' | 'unknown';
@@ -33,8 +32,8 @@ export default function SmartIdentifierInput({
     // 邮箱正则
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // 手机号正则 (简化版，实际应更复杂)
-    const phoneRegex = /^\+?[0-9]{6,15}$/;
+    // 手机号正则 (简化版，以+开头的数字)
+    const phoneRegex = /^\+[0-9]{6,15}$/;
 
     if (emailRegex.test(val)) {
       return 'email';
@@ -61,13 +60,6 @@ export default function SmartIdentifierInput({
     onChange(newValue, newType);
   };
 
-  // 处理手机号输入变化
-  const handlePhoneChange = (newValue: string | undefined) => {
-    const val = newValue || '';
-    setInternalValue(val);
-    onChange(val, 'phone');
-  };
-
   // 初始识别
   useEffect(() => {
     if (value) {
@@ -80,7 +72,7 @@ export default function SmartIdentifierInput({
     setInternalValue(value);
   }, [value]);
 
-  // 根据识别到的类型显示不同输入框
+  // 使用统一的输入框，不再依赖PhoneInput组件
   return (
     <div className="w-full">
       {label && (
@@ -89,31 +81,16 @@ export default function SmartIdentifierInput({
         </label>
       )}
 
-      {(inputType === 'unknown' || inputType === 'email') && (
-        <input
-          type="text"
-          value={internalValue}
-          onChange={handleChange}
-          placeholder={placeholder}
-          className={`appearance-none block w-full px-3 py-2 border ${
-            error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-          } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary text-gray-900 dark:text-white dark:bg-gray-800 ${className}`}
-          autoFocus={autoFocus}
-        />
-      )}
-
-      {inputType === 'phone' && (
-        <PhoneInput
-          international
-          defaultCountry="CN"
-          value={internalValue}
-          onChange={handlePhoneChange}
-          placeholder={placeholder}
-          className={`appearance-none block w-full border ${
-            error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-          } rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-800 ${className}`}
-        />
-      )}
+      <input
+        type="text"
+        value={internalValue}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={`appearance-none block w-full px-3 py-2 border ${
+          error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
+        } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary text-gray-900 dark:text-white dark:bg-gray-800 ${className}`}
+        autoFocus={autoFocus}
+      />
 
       {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
     </div>
